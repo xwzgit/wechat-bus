@@ -20,6 +20,7 @@ class Crypt
     private $encodingAesKey;
     private $appId;
     private $viKey;
+    private $config;
 
 
     /**
@@ -31,10 +32,17 @@ class Crypt
     public function __construct(Config $config)
     {
         $this->config = $config;
-        $this->token = $config->get('open.token');
-        $this->encodingAesKey = $config->get('open.encoding_aes_key');
-        $this->appId = $config->get('open.app_id');
-        $this->viKey = $config->get('open.vi');
+        if($config->get('third_authorized')) {
+            $this->token = $config->get('open.token');
+            $this->encodingAesKey = $config->get('open.encoding_key');
+            $this->appId = $config->get('open.app_id');
+            $this->viKey = $config->get('open.vi');
+        } else {
+            $this->token = $config->get('weChat.token');
+            $this->encodingAesKey = $config->get('weChat.encoding_key');
+            $this->appId = $config->get('weChat.app_id');
+            $this->viKey = $config->get('weChat.vi');
+        }
     }
 
     /**

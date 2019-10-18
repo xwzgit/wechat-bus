@@ -26,7 +26,7 @@ trait LogRegister
     protected function registerLogService()
     {
         //使用已授权第三方平台的公众号
-        if($this->config->get('has_authorize')) {
+        if($this->config->get('third_authorized')) {
             $this->config->get('open.token');
             $identify = 'weChatBus.open';
         } else {

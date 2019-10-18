@@ -66,7 +66,7 @@ class AuthorizeApi
             'useProxy' => intval($this->getConfigItem('weChat.useProxy')),
         ];
 
-        if ($this->config->get('has_authorized')) {
+        if ($this->config->get('third_authorized')) {
             unset($params['useProxy']);
             $params['component_appid'] = $this->getConfigItem('open.app_id') . "#wechat_redirect";
         } else {
@@ -99,7 +99,7 @@ class AuthorizeApi
         ];
 
         //授权第三方公众号
-        if ($this->getConfigItem('has_authorized')) {
+        if ($this->getConfigItem('third_authorized')) {
             $params['component_appid'] = $this->getConfigItem('open.app_id');
             $params['component_access_token'] = $this->getRequestParams('getAccessToken',
                 'componentAccessToken');
@@ -127,7 +127,7 @@ class AuthorizeApi
         ];
 
         //授权第三方公众号
-        if ($this->getConfigItem('has_authorized')) {
+        if ($this->getConfigItem('third_authorized')) {
 
             $params['component_appid'] = $this->getConfigItem('open.app_id');
             $params['component_access_token'] = $this->getRequestParams('getAccessToken',

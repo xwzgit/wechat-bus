@@ -20,7 +20,7 @@ trait BasicProcess
      * @param $index
      * @return bool
      */
-    protected function getRequestParams($action, $index)
+    public function getRequestParams($action, $index)
     {
         if (isset($this->params[$index]) && ($this->params[$index] || $this->params[$index] === 0)) {
             return $this->params[$index];
@@ -55,9 +55,25 @@ trait BasicProcess
      * @param $key
      * @return mixed
      */
-    protected function getConfigItem($key)
+    public function getConfigItem($key)
     {
         return $this->config->get($key);
+    }
+
+    /**
+     * 处理公众号开发接口
+     *
+     * @param $url
+     * @param $token
+     * @param string $kfAccount
+     * @return mixed
+     */
+    public function developUrl($url,$token,$kfAccount = '')
+    {
+        if($kfAccount) {
+            $url = str_replace('{KFACCOUNT}', $kfAccount, $url);
+        }
+        return str_replace('{ACCESS_TOKEN}', $token, $url);
     }
 
 }

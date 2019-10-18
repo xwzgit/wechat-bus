@@ -45,7 +45,7 @@ class BaseProcess
         $this->registerLogService();
 
         //使用已授权第三方平台的公众号
-        if($this->config->get('has_authorize')) {
+        if($this->config->get('third_authorized')) {
             $this->config->set('open.vi',base64_decode($this->config->get('open.encoding_key') . "=")) ;
         } else {
             $this->config->set('weChat.vi',base64_decode($this->config->get('weChat.encoding_key') . "=")) ;
@@ -131,7 +131,7 @@ class BaseProcess
         $nonce = $request->get('nonce');
 
         //使用已授权第三方平台的公众号
-        if($this->config->get('has_authorize')) {
+        if($this->config->get('third_authorized')) {
             $token = $this->config->get('open.token');
         } else {
             $token = $this->config->get('weChat.token');

@@ -4,23 +4,26 @@
  *
  */
 
-namespace ApiServer;
+namespace WeChatBus;
 
-use Open\Auth\Open;
+
+use WeChatBus\Open\Open;
 
 class OpenApiServer
 {
     protected static $open;
+    protected static $config;
 
     /**
      *
-     * @param $config
+     *
      * @return mixed
+     * @throws \Exception
      */
     public static function newOpen()
     {
         if (!(static::$open instanceof Open)) {
-            static::$open = new Open(config('open'));
+            static::$open = new Open(static::$config);
         }
         return static::$open;
     }
@@ -28,12 +31,15 @@ class OpenApiServer
     /**
      * 刷新第三方平台Access Token
      *
-     *
+     * @param $config
      * @param $verifyTicket
      * @return mixed
+     * @throws \Exception
      */
-    public static function componentAccessToken($verifyTicket)
+    public static function componentAccessToken($config,$verifyTicket)
     {
+        static::$config = $config;
+
         $open = static::newOpen();
         $open->setRequestParams(['verifyTicket' => $verifyTicket]);
         return $open->componentAccessToken();
@@ -42,12 +48,15 @@ class OpenApiServer
     /**
      * 获取预授权码
      *
-     *
+     * @param $config
      * @param $comAccToken
      * @return mixed
+     * @throws \Exception
      */
-    public static function preAuthCode($comAccToken)
+    public static function preAuthCode($config,$comAccToken)
     {
+        static::$config = $config;
+
         $open = static::newOpen();
         $open->setRequestParams(['componentAccessToken' => $comAccToken]);
         return $open->preAuthCode();
@@ -56,12 +65,15 @@ class OpenApiServer
     /**
      * 生成授权链接
      *
-     *
+     * @param $config
      * @param $preAuthCode
      * @return mixed
+     * @throws \Exception
      */
-    public static function createAuthUrl($preAuthCode)
+    public static function createAuthUrl($config,$preAuthCode)
     {
+        static::$config = $config;
+
         $open = static::newOpen();
         $open->setRequestParams(['preAuthCode' => $preAuthCode]);
         $response = $open->createAuthUrl();
@@ -74,13 +86,16 @@ class OpenApiServer
     /**
      * 获取公众号授权信息
      *
-     *
+     * @param $config
      * @param $comAccToken
      * @param $authCode
      * @return mixed
+     * @throws \Exception
      */
-    public static function authAccessToken($comAccToken,$authCode)
+    public static function authAccessToken($config,$comAccToken,$authCode)
     {
+        static::$config = $config;
+
         $open = static::newOpen();
         $open->setRequestParams([
             'componentAccessToken' => $comAccToken,
@@ -92,12 +107,17 @@ class OpenApiServer
     /**
      * 刷新授权Access Token
      *
+     * @param $config
+     * @param $comAccToken
      * @param $authAppId
      * @param $refreshToken
      * @return bool
+     * @throws \Exception
      */
-    public static function refreshAuthAccessToken($comAccToken,$authAppId, $refreshToken)
+    public static function refreshAuthAccessToken($config,$comAccToken,$authAppId, $refreshToken)
     {
+        static::$config = $config;
+
         $open = static::newOpen();
         $open->setRequestParams([
             'componentAccessToken' => $comAccToken,
@@ -109,11 +129,17 @@ class OpenApiServer
 
     /**
      * 获取授权方的帐号基本信息
+     *
+     * @param $config
+     * @param $comAccToken
      * @param $authAppId
      * @return array|bool|mixed
+     * @throws \Exception
      */
-    public static function authorizeInfo($comAccToken,$authAppId)
+    public static function authorizeInfo($config,$comAccToken,$authAppId)
     {
+        static::$config = $config;
+
         $open = static::newOpen();
         $open->setRequestParams([
             'componentAccessToken' => $comAccToken,
@@ -126,11 +152,16 @@ class OpenApiServer
     /**
      * 获取第三方平台代公众号清理接口请求次数
      *
-     * @param $params
+     * @param $config
+     * @param $appId
+     * @param $accessToken
      * @return mixed
+     * @throws \Exception
      */
-    public static function clearWeChatQuota($appId, $accessToken)
+    public static function clearWeChatQuota($config,$appId, $accessToken)
     {
+        static::$config = $config;
+
         $open = static::newOpen();
         $params = [
             'appId' => $appId,
@@ -143,88 +174,20 @@ class OpenApiServer
     /**
      * 获取第三方平台清零接口调用次数
      *
+     * @param $config
      * @param $componentAccessToken
      * @return mixed
+     * @throws \Exception
      */
-    public static function clearComponentQuota($componentAccessToken)
+    public static function clearComponentQuota($config,$componentAccessToken)
     {
+        static::$config = $config;
         $open = static::newOpen();
         $params = [
             'componentAccessToken' => $componentAccessToken,
         ];
         $open->setRequestParams($params);
         return $open->createWebAuthorizeUrl();
-    }
-
-    /**
-     * 获取第三方平台代公众号发起授权，授权url
-     *
-     *
-     * @param $appId
-     * @param $redirectUrl
-     * @param $scope
-     * @return mixed
-     */
-    public static function getWebAuthorizeUrl($appId, $redirectUrl, $scope)
-    {
-        $open = static::newOpen();
-        $params = [
-            'appId' => $appId,
-            'redirectUrl' => $redirectUrl,
-            'scope' => $scope,
-        ];
-        $open->setRequestParams($params);
-        return $open->createWebAuthorizeUrl();
-    }
-
-
-    /**
-     * 通过 code 换取 access_token
-     * 通过code获取访问公众号用户信息的access_code
-     *
-     * 会返回：{
-     * "access_token":"ACCESS_TOKEN",
-     * "expires_in":7200,
-     * "refresh_token":"REFRESH_TOKEN",
-     * "openid":"OPENID",
-     * "scope":"SCOPE"
-     * }
-     *
-     *
-     * @param $appId
-     * @param $code
-     * @param $componentAccessToken
-     * @return mixed
-     */
-    public static function getWebAccessToken($appId,$code,$componentAccessToken)
-    {
-        $open = static::newOpen();
-        $params = [
-            'appId' => $appId,
-            'componentAccessToken' => $componentAccessToken,
-            'code' => $code,
-        ];
-        $open->setRequestParams($params);
-        return $open->getWebAccessToken();
-
-    }
-
-    /**
-     * 刷新 access_token
-     * 通过code获取访问公众号用户信息的access_code
-     *
-     */
-    public static function getWebAccessTokenRefresh($appId,$refreshToken,$componentAccessToken)
-    {
-        $open = static::newOpen();
-        $params = [
-            'appId' => $appId,
-            'refreshToken' => $refreshToken,
-            'componentAccessToken' => $componentAccessToken,
-        ];
-        $open->setRequestParams($params);
-        return $open->getWebAccessTokenRefresh();
-
     }
 
 }

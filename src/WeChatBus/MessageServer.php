@@ -1,193 +1,112 @@
 <?php
+
+namespace WeChatBus;
+
+use WeChatBus\Support\BaseProcess;
+use WeChatBus\WeChat\Develop\Message\MsgResponse;
+
 /**
- * 公众号第三方平台接口调用服务
- *
+ * error code 说明.
+ * <ul>
+ *    <li> 40001: 签名验证错误</li>
+ *    <li> 40002: xml解析失败</li>
+ *    <li> 40003: sha加密生成签名失败</li>
+ *    <li> 40004: encodingAesKey 非法</li>
+ *    <li> 40005: appid 校验错误</li>
+ *    <li> 40006: aes 加密失败</li>
+ *    <li> 40007: aes 解密失败</li>
+ *    <li> 40008: 解密后得到的buffer非法</li>
+ *    <li> 40009: base64加密失败</li>
+ *    <li> 40010: base64解密失败</li>
+ *    <li> 40011: 生成xml失败</li>
+ * </ul>
  */
-
-namespace ApiServer;
-
-
-class MessageServer
+class MessageServer extends BaseProcess
 {
-    protected static $weChat;
-
     /**
+     * 将消息处理为数组格式，如果需要解密处理，将解密结果数组返回
+     *
+     * 消息：
+     * msgType :text,image,voice,video,shortvideo,location,link
+     * 事件：
+     * msgType :event
+     * Event:subscribe关注，
+     *      EventKey：qrscene_123123 扫码关注，
+     *
+     * Event：SCAN
+     *      EventKey：SCENE_VALUE 扫码已关注
+     *
+     * Event：LOCATION 上报地理位置后微信推送
+     *
+     * //自定义菜单时候的事件推送
+     * Event:CLICK 菜单点击事件
+     *      EventKey：EVENTKEY 菜单设置的key
+     *
+     * Event:VIEW 菜单链接点击事件
+     *      EventKey：www.qq.com 菜单设置的链接地址
+     *
+     * Event:CLICK 菜单点击事件
+     *      EventKey：EVENTKEY 菜单设置的key
+     *
+     * Event:CLICK 菜单点击事件
+     *      EventKey：EVENTKEY 菜单设置的key
      *
      *
-     * @return mixed
-     * @throws \Exception
+     *
+     *
+     * @return string
      */
-    public static function newWeChat()
+    public function messageContent()
     {
-        if (!(static::$weChat instanceof WeChatAuth)) {
-            static::$weChat = new WeChatAuth(config('open'));
+        $content = $this->dataFromXml();
+        if(isset($content['Encrypt'])) {
+            return $this->decryptContent($content['Encrypt']);
         }
-        return static::$weChat;
+        return $content;
     }
 
     /**
-     * 获取用户openID
+     * 公众号开发者服务校验
      *
-     *
-     * @return mixed
-     * @throws \Exception
+     * @return mixed|string
      */
-    public static function getAuthCodeUrl()
+    public function validate()
     {
-        $weChat = static::newWeChat();
-        $params = [
-            'appId' => config('open.weChat.app_id'),
-            'redirectUri' => config('open.weChat.redirect_uri'),
-            'responseType' => config('open.weChat.response_type'),
-            'scope' => config('open.weChat.scope'),
-            'useProxy' => config('open.weChat.use_proxy'),
-        ];
-
-        $weChat->setRequestParams($params);
-
-        return $weChat->getAuthCodeUrl();
+        return $this->serverValidate();
     }
 
     /**
-     * 通过$code 获取access token和OpenId
+     * @param $params
+     * 被动回复：
+     * MsgType:text,image,voice,video,music,news
+     *  [
+     *      'MsgType' => 'text|event',
+     *      'data' => [
+     *          'encrypt' => true,
+     *          'FromUserName' => 'FromUserName',
+     *          'ToUserName' => 'ToUserName',
+     *          'title' => 'title',
+     *          'description' => 'description',
+     *          'content' => 'content',
+     *          'url' => 'url'
+     *          'media_id' => 'media_id',
+     *          'news' => [
+     *              [
+     *                  'title' => 'title',
+     *                  'description' => 'description',
+     *                  'picurl' => 'picurl',
+     *                  'url' => 'url',
+     *              ]
+     *              ]
+     *      ],
+     * ]
      *
-     * @param $code
-     * @return mixed
-     * @throws \Exception
+     * @return string
      */
-    public static function getOpenIdAccessToken($code)
+    public function response($params)
     {
-        $weChat = static::newWeChat();
+        $response = new MsgResponse($params);
+        return $response->convertResponse($this->crypt);
 
-        $params = [
-            'appId' => config('open.weChat.app_id'),
-            'secret' => config('open.weChat.app_secret'),
-            'code' => $code
-        ];
-
-        $weChat->setRequestParams($params);
-        return $weChat->getAccessTokenOpenId();
     }
-
-    /**
-     * 刷新网页授权Access Token
-     *
-     *
-     * @param $refreshToken
-     * @return mixed
-     * @throws \Exception
-     */
-    public static function refreshAccessToken($refreshToken)
-    {
-        $weChat = static::newWeChat();
-
-        $params = [
-            'appId' => config('open.weChat.app_id'),
-            'refreshToken' => $refreshToken
-        ];
-
-        $weChat->setRequestParams($params);
-        return $weChat->refreshAccessToken();
-    }
-
-    /**
-     * 根据用户openId 和access token 获取用户信息
-     *
-     * @param $openId
-     * @param $accessToken
-     * @return mixed
-     * @throws \Exception
-     */
-    public static function getUserInfo($openId,$accessToken)
-    {
-        $weChat = static::newWeChat();
-        $params = [
-            'appId' => config('open.weChat.app_id'),
-            'accessToken' => $accessToken,
-            'openId' => $openId,
-        ];
-
-        $weChat->setRequestParams($params);
-        return $weChat->getUserInfo();
-    }
-
-    /**
-     * 获取去公众号的基础Access Token
-     *
-     *
-     * @return mixed
-     * @throws \Exception
-     */
-    public static function getBasicAccessToken()
-    {
-        $weChat = static::newWeChat();
-        $params = [
-            'appId' => config('open.weChat.app_id'),
-            'secret' => config('open.weChat.app_secret'),
-        ];
-
-        $weChat->setRequestParams($params);
-        return $weChat->getBasicAccessToken();
-    }
-
-    /**
-     * 获取jsApiTicket
-     *
-     * @param string $accessToken 公众号开发基础token
-     * @return mixed
-     * @throws \Exception
-     */
-    public static function getJsApiTicket($accessToken)
-    {
-        $weChat = static::newWeChat();
-        $params = [
-            'accessToken' => $accessToken,
-        ];
-
-        $weChat->setRequestParams($params);
-        return $weChat->getJsTicketToken();
-    }
-
-    /**
-     * 获取分享配置
-     *
-     *
-     * @param $jsApiTicket
-     * @param $signUrl
-     * @return mixed
-     * @throws \Exception
-     */
-    public static function getShareSetting($jsApiTicket, $signUrl)
-    {
-        $weChat = static::newWeChat();
-
-        $params = [
-            'jsApiTicket' => $jsApiTicket,
-            'signUrl' => $signUrl,
-        ];
-        $weChat->setRequestParams($params);
-        return $weChat->getShareSetting();
-    }
-    /**
-     * 获取分享配置
-     *
-     *
-     * @param $accessToken
-     * @param $openId
-     * @return mixed
-     * @throws \Exception
-     */
-    public static function getWeChatUser($accessToken, $openId)
-    {
-        $weChat = static::newWeChat();
-
-        $params = [
-            'accessToken' => $accessToken,
-            'openId' => $openId,
-        ];
-        $weChat->setRequestParams($params);
-        return $weChat->getWeChatUserByOpenId();
-    }
-
-
 }

@@ -63,7 +63,7 @@ class ApiRequest
      * @return array|bool|mixed
      * @throws \Exception
      */
-    public static function getRequest($action,$url,$params)
+    public static function getRequest($action,$url,$params = [])
     {
         try{
             $client = new Client();
