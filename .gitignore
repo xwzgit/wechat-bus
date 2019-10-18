@@ -1,0 +1,7 @@
+.idea
+/vendor
+/reports
+phpunit.xml
+TokenStore.log
+.DS_Store
+/src/WeChatBus/Support/Config/weChatBus.php
