@@ -1,6 +1,6 @@
 <?php
 /**
- * 公众号第三方平台接口调用服务
+ * 公众号发起网页授权
  *
  */
 
@@ -31,7 +31,7 @@ class WeChatAuthServer
     }
 
     /**
-     * 获取用户openID
+     * 获取授权码
      *
      * @param @config
      * @return mixed

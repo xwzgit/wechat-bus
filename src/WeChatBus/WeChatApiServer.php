@@ -4,9 +4,8 @@
  *
  */
 
-namespace ApiServer;
+namespace WeChatBus;
 
-use Open\Auth\Open;
 use WeChatBus\WeChat\Develop\WeChatApi;
 
 class WeChatApiServer
@@ -28,7 +27,7 @@ class WeChatApiServer
 
     /**
      * 获取公众号自定义才当
-     *
+     *x
      * @param $accessToken
      * @param array $config
      * @return mixed
