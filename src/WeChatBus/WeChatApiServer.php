@@ -11,6 +11,7 @@ use WeChatBus\WeChat\Develop\WeChatApi;
 class WeChatApiServer
 {
     protected static $weChatApi;
+    protected static $config;
 
     /**
      * 获取菜单处理示例
@@ -18,51 +19,82 @@ class WeChatApiServer
      * @param $model
      * @return mixed
      */
-    protected static function getBusinessInstance($model)
+    protected static function newWeChatApi($model)
     {
         $business = [
-            'menu' => '',
+            'menus' => 'WeChatBus\WeChat\Develop\ApiModels\Menus',
+            'msgTpl' => 'WeChatBus\WeChat\Develop\ApiModels\TemplateMessage',
         ];
-        if(static::$config) {
+        if (static::$config) {
             $config = static::$config;
         } else {
             $config = [];
         }
-
-        return new $business[$model]($config);
-
-    }
-    /**
-     *
-     * @param $model
-     * @return mixed
-     */
-    public static function newWeChatApi($model)
-    {
-        if (!(static::$weChatApi instanceof WeChatApi)) {
-            static::$weChatApi = self::getBusinessInstance($model);
+        if (!(static::$weChatApi instanceof $business[$model])) {
+            static::$weChatApi = new $business[$model]($config);
         }
         return static::$weChatApi;
     }
 
     /**
-     * 获取公众号自定义才当
-     *x
+     * 菜单类操作
+     *
+     *
+     * @param string $action
+     * [
+     * getCustomMenus,
+     * createMenus,
+     * getMenus,
+     * deleteMenus,
+     * createConditionalMenus,
+     * tryConditionalMenus,
+     * deleteConditionalMenus,
+     * ]
      * @param $accessToken
      * @param array $config
      * @return mixed
      */
-    public static function getCustomMenus($action,$accessToken,$config = [])
+    public static function menusChannel($action, $accessToken, $config = [])
     {
         static::$config = $config;
 
-        $weChatApi = static::newWeChatApi($action);
+        $weChatApi = static::newWeChatApi('menus');
 
         $params = [
             'accessToken' => $accessToken,
         ];
 
         $weChatApi->setRequestParams($params);
-        return $weChatApi->getCustomMenus();
+        return $weChatApi->{$action}();
+    }
+
+    /**
+     * 消息模板处理
+     *
+     * @param String $action
+     * [
+     * getTemplateList,
+     * removeTemplate,
+     * sendTemplateMessage
+     * ]
+     *
+     * @param $accessToken
+     * @param $post
+     * @param array $config
+     * @return mixed
+     */
+    public static function processMsgTpl($action, $accessToken, $post = [], $config = [])
+    {
+        static::$config = $config;
+
+        $weChatApi = static::newWeChatApi('msgTpl');
+
+        $params = [
+            'accessToken' => $accessToken,
+            'post' => $post,
+        ];
+
+        $weChatApi->setRequestParams($params);
+        return $weChatApi->{$action}();
     }
 }

@@ -10,6 +10,7 @@ namespace WeChatBus\WeChat\Develop\ApiModels;
 
 
 use WeChatBus\Support\Request\ApiRequest;
+use WeChatBus\WeChat\Develop\Common\ApiUrlConfig;
 use WeChatBus\WeChat\Develop\WeChatApi;
 
 class  Menus  extends WeChatApi
@@ -25,9 +26,9 @@ class  Menus  extends WeChatApi
     {
         $url = ApiUrlConfig::configItem('menus.menusInfo');
 
-        $url = $this->developUrl($url,$this->getRequestParams('getCustomMenus','accessToken'));
-
-        return ApiRequest::getRequest('getCustomMenus',$url);
+        return ApiRequest::getRequest('getCustomMenus',$url,[
+            'access_token' => $this->getRequestParams('getCustomMenus','accessToken')
+        ]);
     }
 
     /**
@@ -38,12 +39,12 @@ class  Menus  extends WeChatApi
      * @return array|mixed
      * @throws \Exception
      */
-    public function createMenus( $buttons)
+    public function createMenus()
     {
         $url = ApiUrlConfig::configItem('menus.createMenus');
         $url = $this->developUrl($url,$this->getRequestParams('getCustomMenus','accessToken'));
-
-        return ApiRequest::postRequest('createMenus',$url,$buttons);
+        $buttons = json_encode($this->getRequestParams('getCustomMenus','buttons'),JSON_UNESCAPED_UNICODE);
+        return ApiRequest::postRequest('createMenus',$url,$buttons,'body');
     }
 
     /**
@@ -58,9 +59,10 @@ class  Menus  extends WeChatApi
     public function getMenus()
     {
         $url = ApiUrlConfig::configItem('menus.getMenus');
-        $url = $this->developUrl($url,$this->getRequestParams('getCustomMenus','accessToken'));
 
-        return ApiRequest::getRequest('getMenus',$url,[]);
+        return ApiRequest::getRequest('getMenus',$url,[
+            'access_token' => $this->getRequestParams('getMenus','accessToken')
+        ]);
 
     }
 
@@ -75,9 +77,10 @@ class  Menus  extends WeChatApi
     public function deleteMenus()
     {
         $url = ApiUrlConfig::configItem('menus.deleteMenus');
-        $url = $this->developUrl($url,$this->getRequestParams('getCustomMenus','accessToken'));
 
-        return ApiRequest::getRequest('deleteMenus',$url);
+        return ApiRequest::getRequest('deleteMenus',$url,[
+            'access_token' => $this->getRequestParams('deleteMenus','accessToken')
+        ]);
 
     }
 
@@ -88,12 +91,14 @@ class  Menus  extends WeChatApi
      * @return array|mixed
      * @throws \Exception
      */
-    public function createConditionalMenus( $buttons)
+    public function createConditionalMenus()
     {
         $url = ApiUrlConfig::configItem('menus.conditionalMenus');
-        $url = $this->developUrl($url,$this->getRequestParams('getCustomMenus','accessToken'));
+        $url = $this->developUrl($url,$this->getRequestParams('createConditionalMenus','accessToken'));
 
-        return ApiRequest::postRequest('createConditionalMenus',$url,$buttons);
+
+        $buttons = json_encode($this->getRequestParams('createConditionalMenus','buttons'),JSON_UNESCAPED_UNICODE);
+        return ApiRequest::postRequest('createConditionalMenus',$url,$buttons,'body');
     }
 
     /**
@@ -104,12 +109,14 @@ class  Menus  extends WeChatApi
      * @return array|mixed
      * @throws \Exception
      */
-    public function tryConditionalMenus($conditional)
+    public function tryConditionalMenus()
     {
         $url = ApiUrlConfig::configItem('menus.testConditionalMenus');
-        $url = $this->developUrl($url,$this->getRequestParams('getCustomMenus','accessToken'));
+        $url = $this->developUrl($url,$this->getRequestParams('tryConditionalMenus','accessToken'));
 
-        return ApiRequest::postRequest('tryConditionalMenus',$url,$conditional);
+
+        $buttons = $this->getRequestParams('tryConditionalMenus','buttons');
+        return ApiRequest::postRequest('tryConditionalMenus',$url,$buttons);
     }
 
     /**
@@ -119,12 +126,14 @@ class  Menus  extends WeChatApi
      * @param $conditional
      * @return array|mixed|string
      */
-    public function deleteConditionalMenus($conditional)
+    public function deleteConditionalMenus()
     {
         $url = ApiUrlConfig::configItem('menus.deleteConditionalMenus');
         $url = $this->developUrl($url,$this->getRequestParams('deleteConditionalMenus','accessToken'));
 
-        return ApiRequest::postRequest('createConditionalMenus',$url,$conditional);
+
+        $buttons = json_encode($this->getRequestParams('deleteConditionalMenus','buttons'),JSON_UNESCAPED_UNICODE);
+        return ApiRequest::postRequest('deleteConditionalMenus',$url,$buttons,'body');
 
     }
 }
