@@ -6,12 +6,13 @@
  * Time: 12:01
  * Project Name: myWechat
  */
-namespace WeChatBus\WeChat\Develop\ApiTraits;
+namespace WeChatBus\WeChat\Develop\ApiModels;
 
 
 use WeChatBus\Support\Request\ApiRequest;
+use WeChatBus\WeChat\Develop\WeChatApi;
 
-trait  Menus
+class  Menus  extends WeChatApi
 {
     /**
      * 获取自定义菜单

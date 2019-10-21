@@ -9,18 +9,19 @@ namespace WeChatBus\WeChat\Develop;
 
 use WeChatBus\Support\Config\Config;
 use WeChatBus\Support\Traits\BasicProcess;
-use WeChatBus\WeChat\Develop\ApiTraits\Menus;
+use WeChatBus\Support\Traits\LogRegister;
 
 class WeChatApi
 {
-    use BasicProcess,Menus;
+    use BasicProcess,LogRegister;
 
     protected $config;
     protected $params;
 
-    public function __construct(Config $config)
+    public function __construct($config)
     {
-        $this->config = $config;
+        $this->config = new Config($config);
+        $this->registerLogService();
     }
 
     /**

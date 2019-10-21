@@ -13,14 +13,34 @@ class WeChatApiServer
     protected static $weChatApi;
 
     /**
+     * 获取菜单处理示例
      *
-     * @param $config
+     * @param $model
      * @return mixed
      */
-    public static function newWeChatApi()
+    protected static function getBusinessInstance($model)
+    {
+        $business = [
+            'menu' => '',
+        ];
+        if(static::$config) {
+            $config = static::$config;
+        } else {
+            $config = [];
+        }
+
+        return new $business[$model]($config);
+
+    }
+    /**
+     *
+     * @param $model
+     * @return mixed
+     */
+    public static function newWeChatApi($model)
     {
         if (!(static::$weChatApi instanceof WeChatApi)) {
-            static::$weChatApi = new WeChatApi(static::$config);
+            static::$weChatApi = self::getBusinessInstance($model);
         }
         return static::$weChatApi;
     }
@@ -32,11 +52,11 @@ class WeChatApiServer
      * @param array $config
      * @return mixed
      */
-    public static function getCustomMenus($accessToken,$config = [])
+    public static function getCustomMenus($action,$accessToken,$config = [])
     {
         static::$config = $config;
 
-        $weChatApi = static::newWeChatApi();
+        $weChatApi = static::newWeChatApi($action);
 
         $params = [
             'accessToken' => $accessToken,
