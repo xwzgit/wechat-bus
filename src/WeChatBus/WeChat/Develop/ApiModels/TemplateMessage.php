@@ -48,8 +48,8 @@ class TemplateMessage extends WeChatApi
         $url = ApiUrlConfig::configItem('msgTpl.deleteTpl');
         $url = $this->developUrl($url,$this->getRequestParams('removeTemplate','accessToken'));
 
-        $content = $this->getRequestParams('removeTemplate','content');
-        return ApiRequest::postRequest('removeTemplate',$url,$content);
+        $post = $this->getRequestParams('removeTemplate','post');
+        return ApiRequest::postRequest('removeTemplate',$url,$post);
     }
 
     /**
