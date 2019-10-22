@@ -62,13 +62,13 @@ class TemplateMessage extends WeChatApi
     public  function sendTemplateMessage()
     {
         $url = ApiUrlConfig::configItem('user.info');
-        $sendMsg = $this->getRequestParams('sendTemplateMessage','sendMsg');
+        $sendMsg = $this->getRequestParams('sendTemplateMessage','post');
 
 
         $url = str_replace('{OPENID}', $sendMsg['touser'], $url);
         $response = ApiRequest::getRequest('userSubscribeInfo',$url,[
             'access_token' => $this->getRequestParams('getTemplateList','accessToken'),
-            'openid' => $params['touser']
+            'openid' => $sendMsg['touser']
         ]);
 
         //已关注
