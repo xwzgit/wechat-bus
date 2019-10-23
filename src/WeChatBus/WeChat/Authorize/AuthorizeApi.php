@@ -30,6 +30,9 @@ class AuthorizeApi
     //获取微信用户信息
     protected $userInfo = "https://api.weixin.qq.com/sns/userinfo";
 
+    //获取微信用户信息
+    protected $subscribeInfo = "https://api.weixin.qq.com/cgi-bin/user/info";
+
     //通过code获取访问公众号用户信息的access_code
     protected $proxyWebAccessToken = 'https://api.weixin.qq.com/sns/oauth2/component/access_token';
     protected $proxyWebAccessTokenRefresh = 'https://api.weixin.qq.com/sns/oauth2/component/refresh_token';
@@ -66,6 +69,8 @@ class AuthorizeApi
             'useProxy' => intval($this->getConfigItem('weChat.useProxy')),
         ];
 
+        $authUrl = $this->authCodeUrl . '?';
+
         if ($this->config->get('third_authorized')) {
             unset($params['useProxy']);
             $params['component_appid'] = $this->getConfigItem('open.app_id') . "#wechat_redirect";
@@ -74,7 +79,6 @@ class AuthorizeApi
                 $authUrl = 'https://www.juhe.cn/weixin/proxy/auth?';
             } else {
                 $params['state'] .= "#wechat_redirect";
-                $authUrl = $this->authCodeUrl . '?';
             }
             unset($params['useProxy']);
         }
@@ -160,4 +164,24 @@ class AuthorizeApi
         return ApiRequest::getRequest('getUserInfo', $this->userInfo, $params);
     }
 
+    /**
+     * 获取关注公众号用户的信息
+     * 也可作为检查是否关注公众号
+     *
+     * 这里的AccessToken是公众号基础token 或者授权第三方token
+     *
+     * @return array|bool|mixed
+     * @throws \Exception
+     */
+    public function getSubscribeUserInfo()
+    {
+        $params = [
+            'appid' => $this->getRequestParams('getSubscribeUserInfo', 'appId'),
+            'openid' => $this->getRequestParams('getSubscribeUserInfo', 'openId'),
+            'access_token' => $this->getRequestParams('getSubscribeUserInfo', 'accessToken'),
+            'lang' => 'zh_CN',
+        ];
+
+        return ApiRequest::getRequest('getSubscribeUserInfo', $this->subscribeInfo, $params);
+    }
 }

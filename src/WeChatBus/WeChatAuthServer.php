@@ -130,4 +130,29 @@ class WeChatAuthServer
         return $authorize->getUserInfo();
     }
 
+    /**
+     * 根据用户openId 和access token 获取用户信息
+     *
+     * @param $openId
+     * @param $appId
+     * @param $config
+     * @param $accessToken
+     * @return mixed
+     * @throws \Exception
+     */
+    public static function getSubscribeUserInfo($config,$appId,$openId,$accessToken)
+    {
+        static::$config = $config;
+
+        $authorize = static::newAuthorize();
+        $params = [
+            'appId' => $appId,
+            'accessToken' => $accessToken,
+            'openId' => $openId,
+        ];
+
+        $authorize->setRequestParams($params);
+        return $authorize->getSubscribeUserInfo();
+    }
+
 }
