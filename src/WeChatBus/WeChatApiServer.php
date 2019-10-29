@@ -51,10 +51,11 @@ class WeChatApiServer
      * deleteConditionalMenus,
      * ]
      * @param $accessToken
+     * @param $buttons
      * @param array $config
      * @return mixed
      */
-    public static function menusChannel($action, $accessToken, $config = [])
+    public static function menusChannel($action, $accessToken, $buttons = [],$config = [])
     {
         static::$config = $config;
 
@@ -63,6 +64,10 @@ class WeChatApiServer
         $params = [
             'accessToken' => $accessToken,
         ];
+        if($buttons) {
+            $params['buttons'] = $buttons;
+
+        }
 
         $weChatApi->setRequestParams($params);
         return $weChatApi->{$action}();
