@@ -12,7 +12,7 @@ use WeChatBus\WeChat\Authorize\WeChatAuth;
 class WeChatAuthServer
 {
     protected static $authorize;
-    protected static $config;
+    protected static $config = [];
 
 
     /**
@@ -22,7 +22,7 @@ class WeChatAuthServer
      * @return mixed
      * @throws \Exception
      */
-    public static function newAuthorize()
+    protected static function newAuthorize()
     {
         if (!(static::$authorize instanceof WeChatAuth)) {
             static::$authorize = new WeChatAuth(static::$config);

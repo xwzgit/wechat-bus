@@ -11,7 +11,7 @@ use WeChatBus\WeChat\Token\BasicToken;
 class WeChatTokenServer
 {
     protected static $token;
-    protected static $config;
+    protected static $config = [];
 
     /**
      *
@@ -19,7 +19,7 @@ class WeChatTokenServer
      * @return mixed
      * @throws \Exception
      */
-    public static function newToken()
+    protected static function newToken()
     {
         if (!(static::$token instanceof BasicToken)) {
             static::$token = new BasicToken(static::$config);

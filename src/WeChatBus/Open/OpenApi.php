@@ -23,7 +23,9 @@ class OpenApi
     protected $repAccTk = 'https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode';
     protected $authAccTk = 'https://api.weixin.qq.com/cgi-bin/component/api_query_auth';
     protected $refAuthAccTk = 'https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token';
-    protected $authInfo = 'https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_info';
+    protected $authorList = 'https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_info';
+
+    protected $authInfo = 'https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_list';
 
     //代公众号调用接口调用次数清零 API 的权限。
     protected $clearQuota = 'https://api.weixin.qq.com/cgi-bin/clear_quota';
@@ -188,86 +190,19 @@ class OpenApi
     }
 
     /**
-     * 创建第三方平台代理发送授权地址
+     * 授权公众号列表
      *
-     * @return string
+     * @return array|mixed
+     * @throws \Exception
      */
-    public function createWebAuthorizeUrl()
+    public function authorizeList()
     {
-        $appId = $this->getRequestParams('createWebAuthorizeUrl', 'appId');
-        $redirectUrl = $this->getRequestParams('createWebAuthorizeUrl', 'redirectUrl');
-        $scope = $this->getRequestParams('createWebAuthorizeUrl', 'scope');
+        $comAccTk = $this->getRequestParams('authorizeList', 'componentAccessToken');
+        $params = $this->globalParams(['component_appid' => '']);
+        $params['offset'] = $this->getRequestParams('authorizeList', 'offset');
+        $params['count'] = $this->getRequestParams('authorizeList', 'count');
 
-        $params = [
-            'appid' => $appId,
-            'redirect_uri' => urlencode($redirectUrl),
-            'response_type' => 'code',
-            'scope' => $scope ?: 'snsapi_base',
-            'state' => 'STATE',
-            'component_appid' => $this->globalParams(['component_appid' => ''])['component_appid']
-        ];
-
-        $query = ApiRequest::convertUrlParams($params);
-
-        return [
-            'errcode' => 0,
-            'authUrl' => $this->authorizeUrl . '?' . $query . '#wechat_redirect'
-        ];
-    }
-
-
-    /**
-     * 通过 code 换取 access_token
-     * 通过code获取访问公众号用户信息的access_code
-     *
-     * 会返回：{
-     * "access_token":"ACCESS_TOKEN",
-     * "expires_in":7200,
-     * "refresh_token":"REFRESH_TOKEN",
-     * "openid":"OPENID",
-     * "scope":"SCOPE"
-     * }
-     *
-     */
-    public function getWebAccessToken()
-    {
-        $appId = $this->getRequestParams('getWebAccessToken', 'appId');
-        $code = $this->getRequestParams('getWebAccessToken', 'code');
-        $componentAccessToken = $this->getRequestParams('getWebAccessToken',
-            'componentAccessToken');
-
-        $params = [
-            'appid' => $appId,
-            'code' => $code,
-            'grant_type' => 'authorization_code',
-            'component_appid' => $this->globalParams(['component_appid' => ''])['component_appid'],
-            'component_access_token' => $componentAccessToken
-        ];
-
-        return ApiRequest::getRequest('getWebAccessToken', $this->webAuthorizeToken, $params);
-    }
-
-    /**
-     * 刷新 access_token
-     * 通过code获取访问公众号用户信息的access_code
-     *
-     */
-    public function getWebAccessTokenRefresh()
-    {
-        $appId = $this->getRequestParams('getWebAccessTokenRefresh', 'appId');
-        $refreshToken = $this->getRequestParams('getWebAccessTokenRefresh', 'refreshToken');
-        $componentAccessToken = $this->getRequestParams('getWebAccessTokenRefresh',
-            'componentAccessToken');
-
-        $params = [
-            'appid' => $appId,
-            'grant_type' => 'refresh_token',
-            'component_appid' => $this->globalParams(['component_appid' => ''])['component_appid'],
-            'component_access_token' => $componentAccessToken,
-            'refresh_token' => $refreshToken
-        ];
-
-        return ApiRequest::getRequest('createWebAuthorizeUrl', $this->webAuthorizeTokenRefresh,
-            $params);
+        $url = $this->authorList . '?component_access_token=' . $comAccTk;;
+        return ApiRequest::postRequest('authorizeList', $url, $params);
     }
 }

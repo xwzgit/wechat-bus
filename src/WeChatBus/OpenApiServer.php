@@ -12,7 +12,7 @@ use WeChatBus\Open\Open;
 class OpenApiServer
 {
     protected static $open;
-    protected static $config;
+    protected static $config = [];
 
     /**
      *
@@ -20,7 +20,7 @@ class OpenApiServer
      * @return mixed
      * @throws \Exception
      */
-    public static function newOpen()
+    protected static function newOpen()
     {
         if (!(static::$open instanceof Open)) {
             static::$open = new Open(static::$config);
@@ -146,6 +146,29 @@ class OpenApiServer
             'authAppId' => $authAppId,
         ]);
         return $open->authorizeInfo();
+    }
+
+    /**
+     * 获取授权工作号列表
+     *
+     * @param $config
+     * @param $comAccToken
+     * @param int $count
+     * @param int $offset
+     * @return mixed
+     * @throws \Exception
+     */
+    public static function authorizeList($config,$comAccToken,$count = 20 ,$offset = 0)
+    {
+        static::$config = $config;
+
+        $open = static::newOpen();
+        $open->setRequestParams([
+            'componentAccessToken' => $comAccToken,
+            'count' => $count,
+            'offset' => $offset,
+        ]);
+        return $open->authorizeList();
     }
 
 

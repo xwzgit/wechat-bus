@@ -6,12 +6,10 @@
 
 namespace WeChatBus;
 
-use WeChatBus\WeChat\Develop\WeChatApi;
-
 class WeChatApiServer
 {
     protected static $weChatApi;
-    protected static $config;
+    protected static $config = [];
 
     /**
      * 获取菜单处理示例
@@ -24,6 +22,7 @@ class WeChatApiServer
         $business = [
             'menus' => 'WeChatBus\WeChat\Develop\ApiModels\Menus',
             'msgTpl' => 'WeChatBus\WeChat\Develop\ApiModels\TemplateMessage',
+            ''
         ];
         if (static::$config) {
             $config = static::$config;
